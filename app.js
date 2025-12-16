@@ -58,26 +58,17 @@ app.put("/courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { course_name } = req.body;
-
-    console.log("Updating course:", id, course_name);
-
     const result = await pool.query(
       "UPDATE tbl_course_courses SET course_name=$1, updated_at=NOW() WHERE course_id=$2 RETURNING *",
       [course_name, id]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Course not found" });
-    }
-
-    return res.json(result.rows[0]);
+    if (!result.rows[0]) return res.status(404).json({ error: "Course not found" });
+    res.json(result.rows[0]);
   } catch (err) {
-    console.error("DB ERROR:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 // DELETE course
 app.delete("/courses/:id", async (req, res) => {
