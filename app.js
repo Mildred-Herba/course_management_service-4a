@@ -9,7 +9,7 @@ app.use(express.json());
 
 // PostgreSQL Connection
 const pool = new Pool({
-  connectionString: "postgresql://neondb_owner:npg_ZxsQ4IA3SfqW@ep-square-water-adoe2auv-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  connectionString: "postgresql://neondb_owner:npg_y7kMwma3GIzo@ep-cool-union-ahb22c6r-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
   ssl: { rejectUnauthorized: false },
 });
 
