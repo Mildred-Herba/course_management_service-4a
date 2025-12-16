@@ -86,6 +86,7 @@ app.delete("/courses/:id", async (req, res) => {
 });
 
 // -------------------- SUBJECTS --------------------
+// GET all subjects
 app.get("/subjects", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM tbl_course_subject");
@@ -96,6 +97,7 @@ app.get("/subjects", async (req, res) => {
   }
 });
 
+// GET subject by id
 app.get("/subjects/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -108,6 +110,7 @@ app.get("/subjects/:id", async (req, res) => {
   }
 });
 
+// CREATE subject
 app.post("/subjects", async (req, res) => {
   try {
     const { subject_id, course_name, units, class_time, class_id, instructor_id, pre_requisite, course_id } = req.body;
@@ -125,6 +128,7 @@ app.post("/subjects", async (req, res) => {
   }
 });
 
+// UPDATE subject
 app.put("/subjects/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -143,6 +147,7 @@ app.put("/subjects/:id", async (req, res) => {
   }
 });
 
+// DELETE subject
 app.delete("/subjects/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -166,6 +171,7 @@ app.get("/classes", async (req, res) => {
   }
 });
 
+// GET class by id
 app.post("/classes", async (req, res) => {
   try {
     const { instructor_id, class_time, slot, room, subject_id } = req.body;
@@ -182,6 +188,7 @@ app.post("/classes", async (req, res) => {
   }
 });
 
+//  UPDATE class
 app.put("/classes/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -200,6 +207,7 @@ app.put("/classes/:id", async (req, res) => {
   }
 });
 
+// DELETE class
 app.delete("/classes/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -213,7 +221,6 @@ app.delete("/classes/:id", async (req, res) => {
 });
 
 // -------------------- AVAILABLE COURSES --------------------
-// NOTE: Use the underlying table instead of the view for CRUD
 app.get("/available-courses", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM tbl_available_courses"); // underlying table
@@ -224,6 +231,7 @@ app.get("/available-courses", async (req, res) => {
   }
 });
 
+// CREATE available course
 app.post("/available-courses", async (req, res) => {
   try {
     const { class_id, subject_id, semester_id, school_year } = req.body;
@@ -240,6 +248,7 @@ app.post("/available-courses", async (req, res) => {
   }
 });
 
+// UPDATE available course
 app.put("/available-courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -257,6 +266,7 @@ app.put("/available-courses/:id", async (req, res) => {
   }
 });
 
+// DELETE available course
 app.delete("/available-courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
