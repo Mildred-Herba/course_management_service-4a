@@ -1,8 +1,10 @@
 import express from "express";
+import cors from "cors";
 import pkg from "pg";
 const { Pool } = pkg;
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 // PostgreSQL Connection
@@ -20,7 +22,7 @@ app.get("/courses", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -29,11 +31,11 @@ app.get("/courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query("SELECT * FROM tbl_course_courses WHERE course_id=$1", [id]);
-    if (!result.rows[0]) return res.status(404).json({ error: "Course not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Course not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -49,7 +51,7 @@ app.post("/courses", async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -62,11 +64,11 @@ app.put("/courses/:id", async (req, res) => {
       "UPDATE tbl_course_courses SET course_name=$1, updated_at=NOW() WHERE course_id=$2 RETURNING *",
       [course_name, id]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: "Course not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Course not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -75,41 +77,37 @@ app.delete("/courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query("DELETE FROM tbl_course_courses WHERE course_id=$1 RETURNING *", [id]);
-    if (!result.rows[0]) return res.status(404).json({ error: "Course not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Course not found" });
     res.json({ message: "Course deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
 // -------------------- SUBJECTS --------------------
-
-// GET all subjects
 app.get("/subjects", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM tbl_course_subject");
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// GET subject by id
 app.get("/subjects/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query("SELECT * FROM tbl_course_subject WHERE id=$1", [id]);
-    if (!result.rows[0]) return res.status(404).json({ error: "Subject not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Subject not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// CREATE subject
 app.post("/subjects", async (req, res) => {
   try {
     const { subject_id, course_name, units, class_time, class_id, instructor_id, pre_requisite, course_id } = req.body;
@@ -123,11 +121,10 @@ app.post("/subjects", async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// UPDATE subject
 app.put("/subjects/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -138,41 +135,37 @@ app.put("/subjects/:id", async (req, res) => {
        WHERE id=$9 RETURNING *`,
       [subject_id, course_name, units, class_time, class_id, instructor_id, pre_requisite, course_id, id]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: "Subject not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Subject not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE subject
 app.delete("/subjects/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query("DELETE FROM tbl_course_subject WHERE id=$1 RETURNING *", [id]);
-    if (!result.rows[0]) return res.status(404).json({ error: "Subject not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Subject not found" });
     res.json({ message: "Subject deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
 // -------------------- CLASSES --------------------
-
-// GET all classes
 app.get("/classes", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM tbl_course_classes");
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// CREATE class
 app.post("/classes", async (req, res) => {
   try {
     const { instructor_id, class_time, slot, room, subject_id } = req.body;
@@ -185,11 +178,10 @@ app.post("/classes", async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// UPDATE class
 app.put("/classes/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -200,90 +192,83 @@ app.put("/classes/:id", async (req, res) => {
        WHERE id=$6 RETURNING *`,
       [instructor_id, class_time, slot, room, subject_id, id]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: "Class not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Class not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE class
 app.delete("/classes/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query("DELETE FROM tbl_course_classes WHERE id=$1 RETURNING *", [id]);
-    if (!result.rows[0]) return res.status(404).json({ error: "Class not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Class not found" });
     res.json({ message: "Class deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
 // -------------------- AVAILABLE COURSES --------------------
-
-// GET all available courses
+// NOTE: Use the underlying table instead of the view for CRUD
 app.get("/available-courses", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM tbl_view_available_course");
+    const result = await pool.query("SELECT * FROM tbl_available_courses"); // underlying table
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// CREATE available course
 app.post("/available-courses", async (req, res) => {
   try {
     const { class_id, subject_id, semester_id, school_year } = req.body;
     if (!class_id || !subject_id || !semester_id || !school_year) return res.status(400).json({ error: "Missing required fields" });
     const result = await pool.query(
-      `INSERT INTO tbl_view_available_course (class_id, subject_id, semester_id, school_year)
+      `INSERT INTO tbl_available_courses (class_id, subject_id, semester_id, school_year)
        VALUES ($1,$2,$3,$4) RETURNING *`,
       [class_id, subject_id, semester_id, school_year]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// UPDATE available course
 app.put("/available-courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { class_id, subject_id, semester_id, school_year } = req.body;
     const result = await pool.query(
-      `UPDATE tbl_view_available_course SET
-        class_id=$1, subject_id=$2, semester_id=$3, school_year=$4, updated_at=NOW()
+      `UPDATE tbl_available_courses SET class_id=$1, subject_id=$2, semester_id=$3, school_year=$4, updated_at=NOW()
        WHERE id=$5 RETURNING *`,
       [class_id, subject_id, semester_id, school_year, id]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: "Available course not found" });
+    if (result.rowCount === 0) return res.status(404).json({ error: "Available course not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE available course
 app.delete("/available-courses/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("DELETE FROM tbl_view_available_course WHERE id=$1 RETURNING *", [id]);
-    if (!result.rows[0]) return res.status(404).json({ error: "Available course not found" });
+    const result = await pool.query("DELETE FROM tbl_available_courses WHERE id=$1 RETURNING *", [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: "Available course not found" });
     res.json({ message: "Available course deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
 // -------------------- START SERVER --------------------
 const PORT = process.env.PORT || 3000;
-const HOST = "0.0.0.0";
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
